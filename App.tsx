@@ -7,6 +7,8 @@ import MyKeyboard from './src/components/Keyboard';
 import { useLayoutEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Styles } from './src/styles/GlobalStyles';
+import { MyConverterKeyboard } from './src/components/ConventerKeyboard';
+import { MyDropdownComponent } from './src/components/ConventerKeyboard';
 
 
 function HomeScreen({navigation}:{navigation:any}) {
@@ -23,21 +25,35 @@ function HomeScreen({navigation}:{navigation:any}) {
 function MenuScreen({navigation}:{navigation:any}) {
   return (
     <View style={styles.menu_style}>
-      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Menu')}>
+      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Converter')}>
           <Image style={styles.menu_select_image} source={require('./src/assets/images/currency_image.png')}/>
           <Text>Currency</Text>    
       </TouchableOpacity>
-      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Menu')}>
+      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Converter')}>
           <Image style={styles.menu_select_image} source={require('./src/assets/images/length_image.png')}/>
           <Text>Length</Text>    
       </TouchableOpacity>
-      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Menu')}>
+      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Converter')}>
           <Image style={styles.menu_select_image} source={require('./src/assets/images/speed_image.png')}/>
           <Text>Speed</Text>    
       </TouchableOpacity>     
     </View>
   );
 }
+
+function ConverterScreen({navigation}:{navigation:any}){  
+  return (    
+    
+    <View style={styles.container}>
+      {/* <View style={styles.top}>        
+      </View>      */}       
+        
+        <MyConverterKeyboard/>
+    </View>
+  );
+}
+
+
 
 const Stack = createNativeStackNavigator();
 
@@ -55,6 +71,7 @@ function App() {
           })}/>
       
         <Stack.Screen name="Menu" component={MenuScreen} />
+        <Stack.Screen name="Converter" component={ConverterScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
