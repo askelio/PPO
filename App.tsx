@@ -8,7 +8,6 @@ import { useLayoutEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Styles } from './src/styles/GlobalStyles';
 import { MyConverterKeyboard } from './src/components/ConventerKeyboard';
-import { MyDropdownComponent } from './src/components/ConventerKeyboard';
 
 
 function HomeScreen({navigation}:{navigation:any}) {
@@ -25,15 +24,15 @@ function HomeScreen({navigation}:{navigation:any}) {
 function MenuScreen({navigation}:{navigation:any}) {
   return (
     <View style={styles.menu_style}>
-      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Converter')}>
+      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Converter',{converterType:'currency'})}>
           <Image style={styles.menu_select_image} source={require('./src/assets/images/currency_image.png')}/>
           <Text>Currency</Text>    
       </TouchableOpacity>
-      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Converter')}>
+      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Converter',{converterType:'length'})}>
           <Image style={styles.menu_select_image} source={require('./src/assets/images/length_image.png')}/>
           <Text>Length</Text>    
       </TouchableOpacity>
-      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Converter')}>
+      <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Converter',{converterType:'speed'})}>
           <Image style={styles.menu_select_image} source={require('./src/assets/images/speed_image.png')}/>
           <Text>Speed</Text>    
       </TouchableOpacity>     
@@ -41,14 +40,13 @@ function MenuScreen({navigation}:{navigation:any}) {
   );
 }
 
-function ConverterScreen({navigation}:{navigation:any}){  
-  return (    
+function ConverterScreen({route,navigation}:{route:any, navigation:any}){  
+  const {converterType} = route.params;
+  return (  
+      
     
-    <View style={styles.container}>
-      {/* <View style={styles.top}>        
-      </View>      */}       
-        
-        <MyConverterKeyboard/>
+    <View style={styles.container}>        
+        <MyConverterKeyboard converterType={converterType}/>
     </View>
   );
 }
@@ -69,7 +67,7 @@ function App() {
                   <Image style={styles.menu_image} source={require('./src/assets/images/menu_image.png')}/>
               </TouchableOpacity>,
           })}/>
-      
+        
         <Stack.Screen name="Menu" component={MenuScreen} />
         <Stack.Screen name="Converter" component={ConverterScreen}/>
       </Stack.Navigator>
