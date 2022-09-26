@@ -6,9 +6,10 @@ import { myColors } from "../styles/Colors";
 import { useState } from "react";
 import { StyleSheet, } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { getCurrencyRates } from "./CurrencyExchangeRates";
 
 
-const converterData = {
+let converterData = {
   'lehgth':[
     { label: 'Meter (m)', value: 1 },
     { label: 'Yard (yd)', value: 1.0936133 },
@@ -22,8 +23,13 @@ const converterData = {
     { label: 'Mile/hour (mph)', value: 2.236936 },
     { label: 'Mach (Ma)', value: 0.0029386 },
     { label: 'Inch/second (in)', value: 39.3700787},
+  ],
+  'currency':[
+    { label: 'EUR', value: 1 },
   ]
 }
+
+
 
 
 
@@ -41,21 +47,15 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
   var data = converterData.lehgth;
 
   switch(converterType){
-    case 'length':data =converterData.lehgth
+    case 'length':data =converterData.lehgth;
     break;
-    case 'currency':
-    data =converterData.lehgth
-
-    const { convert } = require('exchange-rates-api');
-    let amount = 0;
-    (async () => {
-      let amount = await convert(2000, 'USD', 'EUR', '2018-01-01');
-      
-    })();
-    
-    alert(amount)
+    case 'currency': 
+    data =converterData.currency;
+    if(data.length ===1){
+    getCurrencyRates(data);    
+    }
     break;
-    case 'speed':data =converterData.speed
+    case 'speed':data = converterData.speed
     break;
   }
 

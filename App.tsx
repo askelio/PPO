@@ -8,6 +8,7 @@ import { useLayoutEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Styles } from './src/styles/GlobalStyles';
 import { MyConverterKeyboard } from './src/components/ConventerKeyboard';
+import { useEffect } from 'react';
 
 
 function HomeScreen({navigation}:{navigation:any}) {
@@ -54,8 +55,10 @@ function ConverterScreen({route,navigation}:{route:any, navigation:any}){
 
 
 const Stack = createNativeStackNavigator();
+const BASE_URL = 'https://api.exchangeratesapi.io/v1/latest?access_key=auDYifam2Ves3V2jl9OCxzahYSGOc2xv';
 
-function App() {
+
+function App() {   
   return (
     <NavigationContainer>
       {/* screenOptions={{headerShown:false}}       */}
