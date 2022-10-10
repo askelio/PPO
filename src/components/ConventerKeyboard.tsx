@@ -1,5 +1,8 @@
 import * as React from "react";
 import Button from "./Button";
+import ExcButton from "./premium_plugin/SwitchButton";
+import CpyButton from "./premium_plugin/CopyButton";
+import InsButton from "./premium_plugin/InsertButton";
 import { View, Text } from "react-native";
 import { Styles } from "../styles/GlobalStyles";
 import { myColors } from "../styles/Colors";
@@ -7,7 +10,10 @@ import { useState } from "react";
 import { StyleSheet, } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { getCurrencyRates } from "./CurrencyExchangeRates";
+import * as Clipboard from 'expo-clipboard';
 
+let temp_to_copy = "";
+const ACCYRANCY = 13
 
 let converterData = {
   'lehgth':[
@@ -31,16 +37,9 @@ let converterData = {
 
 
 
-
-
-
 export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
   const [firstNumber, setFirstNumber] = React.useState("");
   const [secondNumber, setSecondNumber] = React.useState("");
-  const [operation, setOperation] = React.useState("");
-  const [result, setResult] = React.useState<Number | null >(null);
-  const [selected, setSelected] = useState(undefined);  
-
   const [selectedUnit_2, setSelectedUnit_2] = useState(0);
   const [selectedUnit_1,setSelectedUnit_1] = useState(0);
 
@@ -51,7 +50,7 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
     break;
     case 'currency': 
     data =converterData.currency;
-    if(data.length ===1){
+    if(data.length <=1){
     getCurrencyRates(data);    
     }
     break;
@@ -60,44 +59,74 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
   }
 
   const handleNumberPress = (buttonValue: string) => {
-    if (firstNumber.length < 10) {
+    if (firstNumber.length < ACCYRANCY) {
       setFirstNumber(firstNumber + buttonValue);      
+      getResult()  
     }
   }; 
 
   const clear = () => {
     setFirstNumber("");
-    setSecondNumber("");
-    setOperation("");
-    setResult(null);
+    setSecondNumber("");    
   };
 
-  const firstNumberDisplay = () => {   
-     
-    if (firstNumber === "") {
-      return <Text>{"0"}</Text>;
-    }
-    else{
-      return <Text>{firstNumber}</Text>;
-    }      
-  };
-  
-  
 
   const getResult = () =>{
-    if(selectedUnit_1 === 0 && selectedUnit_2===0){
-        setSelectedUnit_1(data[0].value);
-        setSelectedUnit_2(data[0].value);
-    
-    }
-    if (firstNumber === "") {
+    if(selectedUnit_1 === 0 && selectedUnit_2 === 0){
+      setSelectedUnit_1(1);
+      setSelectedUnit_2(1);     
+      
+    }    
+    if (firstNumber == "") {     
+      
       return(<Text>{(0 * selectedUnit_2/selectedUnit_1).toString()}</Text>)
     }
     else{
-      return(<Text>{(parseFloat(firstNumber) * selectedUnit_2/selectedUnit_1).toString()}</Text>)
-    }   
+      temp_to_copy = (parseFloat(firstNumber) * selectedUnit_2/selectedUnit_1).toFixed(ACCYRANCY).toString().slice(0,ACCYRANCY)
+      return(<Text>{(parseFloat(firstNumber) * selectedUnit_2/selectedUnit_1).toFixed(ACCYRANCY).toString().slice(0,ACCYRANCY)}</Text>)
+    }  
+      
+       
   }  
 
+  const displayResult = () =>{
+    
+    return getResult()
+  }
+
+  const firstNumberDisplay = () => {   
+    
+    if (firstNumber === "") {          
+      return <Text>{"0"}</Text>;       
+    }
+    else{      
+      return <Text>{firstNumber}</Text>;
+    }        
+  }; 
+
+   
+
+  const copyToClipboard = async () => {
+    await Clipboard.setStringAsync(temp_to_copy);
+  };
+
+  const fetchCopiedText = async () => {
+    const text = await Clipboard.getStringAsync();
+    if(text.length<=ACCYRANCY){      
+      setFirstNumber(text)
+    }
+    else{
+      alert("Number is too large to insert")
+    }
+    
+  };
+
+  const swapSelectedUnits = () =>{
+    let tmp = selectedUnit_2
+    setSelectedUnit_2(selectedUnit_1)
+    setSelectedUnit_1(tmp)
+  }
+  
   
   return (    
     <View style={Styles.viewBottom}>      
@@ -117,7 +146,8 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
               
           </Picker>       
         </View>
-        {firstNumberDisplay()}
+        <Text>{firstNumberDisplay()}</Text>
+        <InsButton onPress={fetchCopiedText}/>
         
       </View>     
 
@@ -135,9 +165,10 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
                 })
               }
           </Picker>       
-        </View>  
-        <Text>{getResult()}</Text>
-        
+        </View>
+                
+        <Text>{displayResult()}</Text>
+        <CpyButton onPress={copyToClipboard}/>  
         
 
       </View>
@@ -157,13 +188,17 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
       <View style={Styles.row}>
         <Button title="1" onPress={() => handleNumberPress("1")} />
         <Button title="2" onPress={() => handleNumberPress("2")} />
-        <Button title="3" onPress={() => handleNumberPress("3")} />        
-      </View>
+        <Button title="3" onPress={() => handleNumberPress("3")} />
+        <ExcButton onPress={swapSelectedUnits}/> 
+             
+      </View>      
       <View style={Styles.row}>
-        <Button title="00" onPress={() => handleNumberPress("00")} />
-        <Button title="0" onPress={() => handleNumberPress("0")} />
-        <Button title="." onPress={() => handleNumberPress(".")} />       
+          <Button title="00" onPress={() => handleNumberPress("00")} />
+          <Button title="0" onPress={() => handleNumberPress("0")} />
+          <Button title="." onPress={() => handleNumberPress(".")} />  
+              
       </View>
+      
     </View>
   );
 }
@@ -185,13 +220,22 @@ const styles = StyleSheet.create({
     
   },
   first_picker:{    
-    width:150,
+    width:120,
     height:72,    
     borderRadius: 24,
     backgroundColor: myColors.btnGray,
-    margin:3,
+    margin:3,    
+  },
+  exchange_button:{
+    
+    height:'180%',
+    borderRadius: 24,
+    border:3,
+    borderColor:'#000',
+    borderWidth:3,
     
   },
+  
 });
 
 export default {MyConverterKeyboard};

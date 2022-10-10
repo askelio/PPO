@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-clipboard/clipboard": "^1.11.1",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-native-picker/picker": "^2.4.4",
     "@react-navigation/native": "^6.0.12",
@@ -30,7 +31,8 @@
     "react-native-screens": "~3.15.0",
     "react-native-select-dropdown": "^2.0.4",
     "react-native-web": "~0.18.7",
-    "react-navigation": "^4.4.4"
+    "react-navigation": "^4.4.4",
+    "expo-clipboard": "~3.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
