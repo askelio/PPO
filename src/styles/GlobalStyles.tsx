@@ -50,10 +50,11 @@ export const Styles = StyleSheet.create({
     // Keyboard
     row: {
         maxWidth: '100%',
-        flexDirection: "row",
+        flexDirection: "row",        
     },
     viewBottom: {
         position: 'absolute',
+             
         bottom: 0,
     },
     screenFirstNumber: {

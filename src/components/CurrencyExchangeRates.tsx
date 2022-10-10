@@ -11,7 +11,7 @@ export const getCurrencyRates=(arg:{label:string,value:number}[])=>{
     request.responseType = 'json';
     request.send(); 
     
-    request.onload = function() {       
+    request.onload = function() {   
 
         var response = request.response;
         

@@ -2,16 +2,19 @@ import * as React from 'react';
 import { StyleSheet, Text, View,Image} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Button from './src/components/Button';
 import MyKeyboard from './src/components/Keyboard';
-import { useLayoutEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
-import { Styles } from './src/styles/GlobalStyles';
 import { MyConverterKeyboard } from './src/components/ConventerKeyboard';
-import { useEffect } from 'react';
+import * as ScreenOrientation from 'expo-screen-orientation'
+import { useState } from 'react';
+import { Dimensions } from 'react-native';
 
 
-function HomeScreen({navigation}:{navigation:any}) {
+//To identify current orientation
+
+
+
+function HomeScreen({navigation}:{navigation:any}) {  
   return (
     
     <View style={styles.container}>
@@ -23,6 +26,10 @@ function HomeScreen({navigation}:{navigation:any}) {
 }
 
 function MenuScreen({navigation}:{navigation:any}) {
+  
+  // ScreenOrientation.getOrientationAsync().then((data)=>alert(data))
+  
+
   return (
     <View style={styles.menu_style}>
       <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Converter',{converterType:'currency'})}>
@@ -43,13 +50,13 @@ function MenuScreen({navigation}:{navigation:any}) {
 
 function ConverterScreen({route,navigation}:{route:any, navigation:any}){  
   const {converterType} = route.params;
-  return (  
-      
-    
+
+  return(
     <View style={styles.container}>        
         <MyConverterKeyboard converterType={converterType}/>
     </View>
-  );
+  )  
+      
 }
 
 
@@ -58,10 +65,26 @@ const Stack = createNativeStackNavigator();
 const BASE_URL = 'https://api.exchangeratesapi.io/v1/latest?access_key=auDYifam2Ves3V2jl9OCxzahYSGOc2xv';
 
 
-function App() {   
+function App() {
+  const [orientationIsLandscape,setOrientation]=useState(true)
+
+  // async function changeScreenOrientation(){
+  //   if(orientationIsLandscape==true){
+  //   ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT);
+  //   }
+  //   else if(orientationIsLandscape==false){
+  //     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT)
+  //   }
+  // }
+  // const toggleOrientation=()=>{
+  //   setOrientation(!orientationIsLandscape)
+  //   changeScreenOrientation()
+  // }
+ 
+  
+
   return (
     <NavigationContainer>
-      {/* screenOptions={{headerShown:false}}       */}
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} options={({navigation}) => ({
             headerTitle: () => <Text>Calculator</Text>,
