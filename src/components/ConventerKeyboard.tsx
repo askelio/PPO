@@ -7,10 +7,11 @@ import { View, Text } from "react-native";
 import { Styles } from "../styles/GlobalStyles";
 import { myColors } from "../styles/Colors";
 import { useState } from "react";
-import { StyleSheet, } from "react-native";
+import { StyleSheet,Dimensions } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { getCurrencyRates } from "./CurrencyExchangeRates";
 import * as Clipboard from 'expo-clipboard';
+
 
 let temp_to_copy = "";
 const ACCYRANCY = 13
@@ -35,15 +36,37 @@ let converterData = {
   ]
 }
 
+const screen = Dimensions.get('screen');
 
-
-export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
+let a = 0
+export const MyConverterKeyboard = ({converterType}:{converterType:string}) => { 
+   
   const [firstNumber, setFirstNumber] = React.useState("");
   const [secondNumber, setSecondNumber] = React.useState("");
   const [selectedUnit_2, setSelectedUnit_2] = useState(0);
   const [selectedUnit_1,setSelectedUnit_1] = useState(0);
 
+
+  // For screen rotating
+  
+  const isLandscape = screen.width > screen.height;  
+  const [window, setWindow] = useState(false);
+
+  React.useEffect(() => {
+    const b = Dimensions.addEventListener('change',()=>{
+      setWindow(!window);
+      console.log(a++)
+    })
+    return () => {
+      b.remove()
+    };
+  });
+
+  
+
   var data = converterData.lehgth;
+
+  
 
   switch(converterType){
     case 'length':data =converterData.lehgth;
@@ -89,8 +112,7 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
        
   }  
 
-  const displayResult = () =>{
-    
+  const displayResult = () =>{    
     return getResult()
   }
 
@@ -126,84 +148,95 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
     setSelectedUnit_2(selectedUnit_1)
     setSelectedUnit_1(tmp)
   }
-  
-  
-  return (    
-    <View style={Styles.viewBottom}>      
-      <View style={Styles.row}>
-        <View style={styles.first_picker}>
-          <Text style={styles.container}>First</Text>
-          <Picker
-              selectedValue={selectedUnit_1}
-              onValueChange={(itemValue, itemIndex) =>
-                setSelectedUnit_1(itemValue)
-              }>
-              {
-                data.map(function(i){
-                  return <Picker.Item label={i.label} value={i.value}/>
-                })
-              }
-              
-          </Picker>       
-        </View>
-        <Text>{firstNumberDisplay()}</Text>
-        <InsButton onPress={fetchCopiedText}/>
-        
-      </View>     
 
-      <View style={Styles.row}>
-        <View style={styles.first_picker}>
-          <Text style={styles.container}>Second</Text>
-          <Picker
-              selectedValue={selectedUnit_2}
-              onValueChange={(itemValue, itemIndex) =>
-                setSelectedUnit_2(itemValue)
-              }>
-              {
-                data.map(function(i){
-                  return <Picker.Item label={i.label} value={i.value}/>
-                })
-              }
-          </Picker>       
-        </View>
+ 
+
+  return (
+    
+    // Selectors for exchange unit
+    
+    <View style={Styles.viewBottom}>         
+      <View style={window?styles.selector_landscape:styles.non_landscape}>
+        <View style={Styles.row}>
+          <View style={styles.first_picker}>
+            <Text style={styles.container}>First</Text>
+            <Picker
+                selectedValue={selectedUnit_1}
+                onValueChange={(itemValue, itemIndex) =>
+                  setSelectedUnit_1(itemValue)
+                }>
+                {
+                  data.map(function(i){
+                    return <Picker.Item label={i.label} value={i.value}/>
+                  })
+                }
                 
-        <Text>{displayResult()}</Text>
-        <CpyButton onPress={copyToClipboard}/>  
-        
+            </Picker>       
+          </View>
+          <Text>{firstNumberDisplay()}</Text>
+          <InsButton onPress={fetchCopiedText}/>        
+        </View>     
 
-      </View>
+        <View style={Styles.row}>
+          <View style={styles.first_picker}>
+            <Text style={styles.container}>Second</Text>
+            <Picker
+                selectedValue={selectedUnit_2}
+                onValueChange={(itemValue, itemIndex) =>
+                  setSelectedUnit_2(itemValue)
+                }>
+                {
+                  data.map(function(i){
+                    return <Picker.Item label={i.label} value={i.value}/>
+                  })
+                }
+            </Picker>       
+          </View>
+                  
+          <Text>{displayResult()}</Text>
+          <CpyButton onPress={copyToClipboard}/>         
 
-      <View style={Styles.row}>
-        <Button title="7" onPress={() => handleNumberPress("7")} />
-        <Button title="8" onPress={() => handleNumberPress("8")} />
-        <Button title="9" onPress={() => handleNumberPress("9")} />
-        <Button title="C" isGray onPress={clear} />                
-      </View>
-      <View style={Styles.row}>
-        <Button title="4" onPress={() => handleNumberPress("4")} />
-        <Button title="5" onPress={() => handleNumberPress("5")} />
-        <Button title="6" onPress={() => handleNumberPress("6")} />
-        <Button title="⌫" onPress={() => setFirstNumber(firstNumber.slice(0, -1))} />     
-      </View>
-      <View style={Styles.row}>
-        <Button title="1" onPress={() => handleNumberPress("1")} />
-        <Button title="2" onPress={() => handleNumberPress("2")} />
-        <Button title="3" onPress={() => handleNumberPress("3")} />
-        <ExcButton onPress={swapSelectedUnits}/> 
-             
-      </View>      
-      <View style={Styles.row}>
-          <Button title="00" onPress={() => handleNumberPress("00")} />
-          <Button title="0" onPress={() => handleNumberPress("0")} />
-          <Button title="." onPress={() => handleNumberPress(".")} />  
-              
+        </View>
       </View>
       
-    </View>
+      
+
+      {/*
+      Custom keyboard 
+      */}
+      <View style={window?styles.landscape:styles.non_landscape}>
+      <View style={Styles.row}>
+        <Button title="7" isLandScape={window?true:false} onPress={() => handleNumberPress("7")} />
+        <Button title="8" isLandScape={window?true:false} onPress={() => handleNumberPress("8")} />
+        <Button title="9" isLandScape={window?true:false} onPress={() => handleNumberPress("9")} />
+        <Button title="C" isLandScape={window?true:false} isGray onPress={clear} />                
+      </View>
+      <View style={Styles.row}>
+        <Button title="4" isLandScape={window?true:false} onPress={() => handleNumberPress("4")} />
+        <Button title="5" isLandScape={window?true:false} onPress={() => handleNumberPress("5")} />
+        <Button title="6" isLandScape={window?true:false} onPress={() => handleNumberPress("6")} />
+        <Button title="⌫" isLandScape={window?true:false} onPress={() => setFirstNumber(firstNumber.slice(0, -1))} />     
+      </View>
+      <View style={Styles.row}>
+        <Button title="1" isLandScape={window?true:false} onPress={() => handleNumberPress("1")} />
+        <Button title="2" isLandScape={window?true:false} onPress={() => handleNumberPress("2")} />
+        <Button title="3" isLandScape={window?true:false} onPress={() => handleNumberPress("3")} />
+        <ExcButton isLandScape={window?true:false} onPress={swapSelectedUnits}/> 
+                   
+      </View>      
+      <View style={Styles.row}>
+          <Button isLandScape={window?true:false} title="00" onPress={() => handleNumberPress("00")} />
+          <Button isLandScape={window?true:false} title="0" onPress={() => handleNumberPress("0")} />
+          <Button isLandScape={window?true:false} title="." onPress={() => handleNumberPress(".")} />                
+      </View> 
+      </View>
+           
+    </View>      
   );
 }
 
-const styles = StyleSheet.create({
+
+let styles = StyleSheet.create({
   container: {
     color:'#fff',
     marginLeft:'35%',
@@ -214,28 +247,37 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    marginTop:0,
+    justifyContent: 'flex-start',    
     marginLeft:'70%',
     
   },
   first_picker:{    
     width:120,
-    height:72,    
+    height:72,      
     borderRadius: 24,
     backgroundColor: myColors.btnGray,
     margin:3,    
   },
-  exchange_button:{
-    
+  exchange_button:{    
     height:'180%',
     borderRadius: 24,
     border:3,
     borderColor:'#000',
-    borderWidth:3,
-    
+    borderWidth:3,    
   },
+  landscape:{
+    left:"70%",
+  },
+  non_landscape:{
+
+  },
+  selector_landscape:{
+    top:200,
+    right:200,
+  }
   
 });
+
+
 
 export default {MyConverterKeyboard};

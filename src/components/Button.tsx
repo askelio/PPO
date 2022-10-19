@@ -8,13 +8,32 @@ interface ButtonProps {
     title: string;
     isBlue?: boolean;
     isGray?: boolean;
+    isLandScape?:boolean;
 }
 
-export default function Button({ title, onPress, isBlue, isGray }: ButtonProps) {
+export default function Button({ title, onPress, isBlue, isGray,isLandScape }: ButtonProps) {
     const theme = useContext(ThemeContext);
     return (
         <TouchableOpacity 
+            // style={
+            //     isBlue 
+            //     ? Styles.btnBlue 
+            //     : isGray 
+            //     ? Styles.btnGray 
+            //     : theme === "light" 
+            //     ? Styles.btnLight 
+            //     : Styles.btnDark
+            // }
             style={
+                isLandScape?
+                isBlue 
+                ? Styles.btnBlueLandScape
+                : isGray 
+                ? Styles.btnGrayLandScape 
+                : theme === "light" 
+                ? Styles.btnLightLandScape 
+                : Styles.btnDarkLandScape
+                :
                 isBlue 
                 ? Styles.btnBlue 
                 : isGray 
@@ -22,7 +41,7 @@ export default function Button({ title, onPress, isBlue, isGray }: ButtonProps) 
                 : theme === "light" 
                 ? Styles.btnLight 
                 : Styles.btnDark
-            } 
+            }  
             onPress={onPress}>
             <Text 
                style={

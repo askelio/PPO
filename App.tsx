@@ -5,9 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MyKeyboard from './src/components/Keyboard';
 import { TouchableOpacity } from 'react-native';
 import { MyConverterKeyboard } from './src/components/ConventerKeyboard';
-import * as ScreenOrientation from 'expo-screen-orientation'
-import { useState } from 'react';
-import { Dimensions } from 'react-native';
+import { MyTest } from './src/components/temp';
 
 
 //To identify current orientation
@@ -25,9 +23,8 @@ function HomeScreen({navigation}:{navigation:any}) {
   );
 }
 
-function MenuScreen({navigation}:{navigation:any}) {
-  
-  // ScreenOrientation.getOrientationAsync().then((data)=>alert(data))
+
+function MenuScreen({navigation}:{navigation:any}) { 
   
 
   return (
@@ -43,14 +40,13 @@ function MenuScreen({navigation}:{navigation:any}) {
       <TouchableOpacity style={styles.menu_button_style} onPress={() => navigation.navigate('Converter',{converterType:'speed'})}>
           <Image style={styles.menu_select_image} source={require('./src/assets/images/speed_image.png')}/>
           <Text>Speed</Text>    
-      </TouchableOpacity>     
+      </TouchableOpacity>    
     </View>
   );
 }
 
 function ConverterScreen({route,navigation}:{route:any, navigation:any}){  
   const {converterType} = route.params;
-
   return(
     <View style={styles.container}>        
         <MyConverterKeyboard converterType={converterType}/>
@@ -65,25 +61,10 @@ const Stack = createNativeStackNavigator();
 const BASE_URL = 'https://api.exchangeratesapi.io/v1/latest?access_key=auDYifam2Ves3V2jl9OCxzahYSGOc2xv';
 
 
+
+
 function App() {
-  const [orientationIsLandscape,setOrientation]=useState(true)
-
-  // async function changeScreenOrientation(){
-  //   if(orientationIsLandscape==true){
-  //   ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT);
-  //   }
-  //   else if(orientationIsLandscape==false){
-  //     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT)
-  //   }
-  // }
-  // const toggleOrientation=()=>{
-  //   setOrientation(!orientationIsLandscape)
-  //   changeScreenOrientation()
-  // }
- 
-  
-
-  return (
+  return (    
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} options={({navigation}) => ({
