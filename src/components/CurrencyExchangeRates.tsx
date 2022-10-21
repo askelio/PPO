@@ -1,7 +1,5 @@
 // const fs = require('react-native-fs');
 
-
-
 export const getCurrencyRates=(arg:{label:string,value:number}[])=>{    
 
     const rates:{label:string,value:number}[]= [{ label: 'EUR', value: 1 }]

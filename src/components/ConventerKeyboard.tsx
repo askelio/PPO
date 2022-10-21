@@ -3,7 +3,7 @@ import Button from "./Button";
 import ExcButton from "./premium_plugin/SwitchButton";
 import CpyButton from "./premium_plugin/CopyButton";
 import InsButton from "./premium_plugin/InsertButton";
-import { View, Text } from "react-native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { Styles } from "../styles/GlobalStyles";
 import { myColors } from "../styles/Colors";
 import { useState } from "react";
@@ -14,7 +14,7 @@ import * as Clipboard from 'expo-clipboard';
 
 
 let temp_to_copy = "";
-const ACCYRANCY = 13
+const ACCYRANCY = 16
 
 let converterData = {
   'lehgth':[
@@ -46,7 +46,9 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
   const [selectedUnit_2, setSelectedUnit_2] = useState(0);
   const [selectedUnit_1,setSelectedUnit_1] = useState(0);
 
+  // For cursor position
 
+  const [inputCursor, setInputCursor] = useState(firstNumber.length+1);
   // For screen rotating
   
   const isLandscape = screen.width > screen.height;  
@@ -82,8 +84,26 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
   }
 
   const handleNumberPress = (buttonValue: string) => {
+    if(firstNumber.includes('.') && buttonValue=='.'){
+      alert("You cant enter more than one dots")
+      return
+    }
+    if(firstNumber=='' && buttonValue=='.'){
+      alert("You cant enter '.' as the first symbol of number")
+      return
+    }
+    if(firstNumber.length==ACCYRANCY-1 && buttonValue=='.'){
+      alert("You cant enter '.' in the end of number")
+      return
+    }
+    
     if (firstNumber.length < ACCYRANCY) {
-      setFirstNumber(firstNumber + buttonValue);      
+      // if(inputCursor==0 && firstNumber.length!=0){
+      //   return
+      // }
+      setInputCursor(inputCursor+1)
+      setFirstNumber(firstNumber.slice(0,inputCursor)+buttonValue+firstNumber.slice(inputCursor))
+      // setFirstNumber(firstNumber + buttonValue);      
       getResult()  
     }
   }; 
@@ -119,10 +139,10 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
   const firstNumberDisplay = () => {   
     
     if (firstNumber === "") {          
-      return <Text>{"0"}</Text>;       
+      return "0";       
     }
     else{      
-      return <Text>{firstNumber}</Text>;
+      return firstNumber;
     }        
   }; 
 
@@ -134,6 +154,12 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
 
   const fetchCopiedText = async () => {
     const text = await Clipboard.getStringAsync();
+    
+    if(!parseFloat(text)){
+      alert('Incorrect digit format')
+      return
+    }
+
     if(text.length<=ACCYRANCY){      
       setFirstNumber(text)
     }
@@ -149,13 +175,32 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
     setSelectedUnit_1(tmp)
   }
 
- 
+  
+
+  const deleteNumber = ():any =>{
+    if(inputCursor<=0){
+      return
+    }
+    setInputCursor(inputCursor-1)
+    setFirstNumber(firstNumber.slice(0,inputCursor-1)+firstNumber.slice(inputCursor))
+  } 
+
+  console.log(inputCursor)
+
+  const [editState,setEditState] = useState(true)
+
+  let pressCount = 0;
+
+  const test = () =>{    
+    setEditState(false)
+    setTimeout(()=>{setEditState(true),1000})    
+  }
 
   return (
     
     // Selectors for exchange unit
     
-    <View style={Styles.viewBottom}>         
+    <View style={Styles.viewBottom}>     
       <View style={window?styles.selector_landscape:styles.non_landscape}>
         <View style={Styles.row}>
           <View style={styles.first_picker}>
@@ -173,7 +218,20 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
                 
             </Picker>       
           </View>
-          <Text>{firstNumberDisplay()}</Text>
+          {/* <Text>{firstNumberDisplay()}</Text> */}
+          
+            <View removeClippedSubviews={true}>
+              <TextInput onPressIn={test} editable={editState} contextMenuHidden={true} pointerEvents="box-only" selectTextOnFocus={false}   showSoftInputOnFocus={false} onSelectionChange={(e) => {setInputCursor(e.nativeEvent.selection.start)}}>
+              <Text >
+                {firstNumber}
+              </Text>
+              </TextInput>
+            </View>
+          
+          
+          
+                             
+
           <InsButton onPress={fetchCopiedText}/>        
         </View>     
 
@@ -215,7 +273,7 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
         <Button title="4" isLandScape={window?true:false} onPress={() => handleNumberPress("4")} />
         <Button title="5" isLandScape={window?true:false} onPress={() => handleNumberPress("5")} />
         <Button title="6" isLandScape={window?true:false} onPress={() => handleNumberPress("6")} />
-        <Button title="⌫" isLandScape={window?true:false} onPress={() => setFirstNumber(firstNumber.slice(0, -1))} />     
+        <Button title="⌫" isLandScape={window?true:false} onPress={() => deleteNumber()}/>     
       </View>
       <View style={Styles.row}>
         <Button title="1" isLandScape={window?true:false} onPress={() => handleNumberPress("1")} />
@@ -274,6 +332,9 @@ let styles = StyleSheet.create({
   selector_landscape:{
     top:200,
     right:200,
+  },
+  input_style:{
+     
   }
   
 });
