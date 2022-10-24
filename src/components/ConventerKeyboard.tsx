@@ -13,6 +13,7 @@ import { getCurrencyRates } from "./CurrencyExchangeRates";
 import * as Clipboard from 'expo-clipboard';
 
 
+
 let temp_to_copy = "";
 const ACCYRANCY = 16
 
@@ -188,13 +189,15 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
   console.log(inputCursor)
 
   const [editState,setEditState] = useState(true)
-
-  let pressCount = 0;
-
-  const test = () =>{    
-    setEditState(false)
-    setTimeout(()=>{setEditState(true),1000})    
+  const [caretState,setCaretState] = useState(false)
+      
+  const detectOnPressIn = () =>{
+    setEditState(false)    
+    setCaretState(true)
+    setTimeout(()=>{setCaretState(false);setEditState(true),5000000}) 
   }
+
+    
 
   return (
     
@@ -220,16 +223,13 @@ export const MyConverterKeyboard = ({converterType}:{converterType:string}) => {
           </View>
           {/* <Text>{firstNumberDisplay()}</Text> */}
           
-            <View removeClippedSubviews={true}>
-              <TextInput onPressIn={test} editable={editState} contextMenuHidden={true} pointerEvents="box-only" selectTextOnFocus={false}   showSoftInputOnFocus={false} onSelectionChange={(e) => {setInputCursor(e.nativeEvent.selection.start)}}>
-              <Text >
+            <View  removeClippedSubviews={true}>
+              <TextInput onPressIn={detectOnPressIn} editable={editState} contextMenuHidden={true} selectTextOnFocus={false}  showSoftInputOnFocus={false} onSelectionChange={(e) => {e.nativeEvent.selection.end = e.nativeEvent.selection.start; setInputCursor(e.nativeEvent.selection.start)}}>
+              <Text>
                 {firstNumber}
               </Text>
               </TextInput>
-            </View>
-          
-          
-          
+            </View>         
                              
 
           <InsButton onPress={fetchCopiedText}/>        
