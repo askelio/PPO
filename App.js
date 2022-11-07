@@ -1,20 +1,53 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, Text } from 'react';
+import { TouchableOpacity } from 'react-native';
+import Calculator from "./src/Calculator";
+import { ThemeContextProvider } from './src/ThemeContext';
+import { View } from 'react-native';
+import { Switch } from 'react-native';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+
+export default ({showLiveResult, scientific, customize, theme, haptics, history, showTooltip}) => {
+    const [isScientific,setIsScientific] = useState('false')
+    const [isEnabled, setIsEnabled] = useState(false);
+    const toggleSwitch = () => {setIsEnabled(previousState => !previousState)};
+
+    // <View>
+
+
+    // {/* <View>
+    //     <Text>
+    //         Hello
+    //     </Text>
+    //     <Switch
+    //     trackColor={{ false: "#767577", true: "#81b0ff" }}
+    //     thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+    //     ios_backgroundColor="#3e3e3e"
+    //     onValueChange={toggleSwitch}
+    //     value={isEnabled}
+        
+    //     />
+    // </View>
+        
+    // {/* <View>
+    //     <Text>
+    //         Hello
+    //     </Text>
+    //     <Switch
+    //     trackColor={{ false: "#767577", true: "#81b0ff" }}
+    //     thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+    //     ios_backgroundColor="#3e3e3e"
+    //     onValueChange={toggleSwitch}
+    //     value={isEnabled}
+        
+    //     />
+    // </View> */}
+    // </View> */}
+    
+    return (
+        <ThemeContextProvider> 
+       
+
+            <Calculator showLiveResult={false} scientific={isScientific} customize={customize} theme='ligth' haptics={haptics} history={history} showTooltip={showTooltip}/>
+        </ThemeContextProvider>        
+    );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
