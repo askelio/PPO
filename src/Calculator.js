@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, TouchableOpacity, Vibration, Platform, TextInput, PixelRatio } from "react-native";
-import { create, all } from "mathjs";
+import { View, Text, TouchableOpacity, Vibration, Platform, TextInput, PixelRatio, Button } from "react-native";
+import { create, all, size, exp } from "mathjs";
 import { ThemeContext } from "./ThemeContext";
 import { Switch } from "react-native";
+import { Dimensions } from 'react-native';
 
 const Mathjs = create(all);
 
@@ -11,7 +12,11 @@ ln.transform = (num) => ln(num);
 Mathjs.import({ ln: ln })
 
 
+const window = Dimensions.get("window");
+const screen = Dimensions.get("screen");
+
 const Calculators = ({ showLiveResult, scientific: showScientific, customize, theme, haptics, history, showTooltip }) => {
+    
     const [expr, setExpr] = useState([0]);
     const [result, setResult] = useState(0);
     const [equalled, setEqualled] = useState(false);
@@ -23,9 +28,13 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
 
     const { styles, customizeTheme, isLoading } = useContext(ThemeContext);
 
+    theme='ligth'
     useEffect(() => {
         customizeTheme({ theme, customize });
+        
     }, [styles]);
+
+    
 
     useEffect(() => {
         if (!showLiveResult) return;
@@ -63,13 +72,16 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
         Vibration.vibrate(20)
     }
 
+    
+
     const calculate = () => {
         Vibrate();
-        let res = result;
+        let res = result;        
         try {
-            res = Mathjs.evaluate(expr.join(""));
+            res = Mathjs.evaluate(expr.join(""));            
         } catch (error) {
-            //console.log(error)
+            console.log(error)
+            return
         }
         if (showLiveResult) {
             if (isNaN(res)) {
@@ -81,7 +93,9 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
         if (isNaN(res)) {
             console.log("error occured3")
         } else {
-            setExpr([res]);
+            console.log(res)
+            setExpr(Array.from(String(res),String));
+            setCaretPositon(res.toString().length)
         }
         setEqualled(true);
     }
@@ -95,19 +109,31 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
             if (expr.join() === "0") {
                 setExpr([val]);
             } else {
-                setExpr([...expr, val]);
+                // setExpr([...expr, val]);
+                let ret = [...expr]
+                ret.splice(caretPosition, 0, val)
+                setExpr([...ret])
             }
         }
         setEqualled(false);
         //calculate();
+
+        setCaretPositon(caretPosition+1)
     }
 
-    const buttonPressed = (val, tip = "") => {
+    const buttonPressed = (val, tip = "") => {        
         setTooltip(tip);
         Vibrate();
-        setExpr([...expr, val]);
+        // setExpr([...expr, val]);
+
+        let ret = [...expr]
+        ret.splice(caretPosition, 0, val)
+        setExpr([...ret])
+
         setEqualled(false);
+        
         //calculate();
+        setCaretPositon(caretPosition+1)
     }
 
     const functionPressed = (val, tip = "") => {
@@ -130,27 +156,33 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
         //setExpr([...expr, val]);
         setEqualled(false);
         //calculate();
+        setCaretPositon(caretPosition+1)
     }
 
     const deleteHandler = () => {
         Vibrate();
         if (expr.length > 0) {
             let _expr = [...expr];
-            if (equalled) {
-                let arr = Array.from(_expr.toString())
-                arr.pop();
-                _expr = [arr.join("")];
-            } else {
-                _expr.pop();
+            // if (equalled) {
+            //     let arr = Array.from(_expr.toString())
+            //     arr.pop();
+            //     _expr = [arr.join("")];
+            // } else {
+                _expr.splice(caretPosition-1,1);
                 if (_expr.length === 0) _expr.push(0)
-            }
+            // }
             setExpr(_expr);
+            if(caretPosition <= 1){
+                return
+            }
+            setCaretPositon(caretPosition-1)
         }
     }
 
     const clearHandler = () => {
         Vibrate();
         setExpr([0]);
+        setCaretPositon(0)
     }
 
     const dotHandler = () => {
@@ -182,18 +214,68 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
         </View>
     </View>
 
-    const Display = () => <View style={styles.display}>
-        <TextInput
+    const [editState,setEditState] = useState(true)
+
+    
+
+    const [caretPosition, setCaretPositon] = useState(0)
+
+    const NO_WIDTH_SPACE = "";
+
+    const highlight = string =>
+    string.map((word, i) => (        
+        <Text key={i}>
+        <Text style={i===caretPosition-1?{backgroundColor:'#FFE6E1'}:{backgroundColor:'#FFFF'}}>{word}</Text>
+        {NO_WIDTH_SPACE}
+        </Text>
+    ));
+
+    console.log(caretPosition)
+    const getResult = () =>{           
+        
+
+        return( <Text
             onContentSizeChange={x => {
                 //console.log(x)
             }}
             style={styles.expression}
             multiline={true}
-            value={expr.join("")}
+           
             textAlign="right"
             textAlignVertical="bottom"
-            editable={false} />
-        {showLiveResult && <Text style={styles.result}>{result}</Text>}
+            
+            
+            editable={false}
+        
+        >{highlight(expr)}</Text>       
+        
+        )       
+        
+    }
+
+
+    const Display = () => 
+    <View style={styles.display}>
+        {/* <TextInput
+            onContentSizeChange={x => {
+                //console.log(x)
+            }}
+            style={styles.expression}
+            multiline={true}
+            value={getResult()}
+            textAlign="right"
+            textAlignVertical="bottom"
+            
+            
+            showSoftInputOnFocus={false}
+            contextMenuHidden={true}
+            
+            editable={false}
+
+            
+            />
+        {showLiveResult && <Text style={styles.result}>{result}</Text>}         */}
+        {getResult()}
     </View>
 
     const StyledText = ({ children: _children, style }) => {
@@ -223,10 +305,10 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
             <TouchableOpacity style={styles.button} onPressIn={() => numPressed("rad")}>
                 <StyledText style={styles.button}>rad</StyledText>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPressIn={() => numPressed("π", `π = ${22 / 7}`)}>
+            <TouchableOpacity style={styles.button} onPressIn={() => numPressed("pi", `π = pi`)}>
                 <StyledText style={styles.button}>π</StyledText>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPressIn={() => numPressed("e", `e = ${Math.E}`)}>
+            <TouchableOpacity style={styles.button} onPressIn={() => numPressed("e", `e = e`)}>
                 <StyledText style={styles.button}>e</StyledText>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPressIn={() => functionPressed("exp(", "exp(x) - e to the power of x")}>
@@ -400,21 +482,88 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
         </View>
     </View>
 
+    const [isScientific,setIsScientific] = useState(false)
+    const [isEnabled, setIsEnabled] = useState(false);
+    const [calcType, setCalcType] = useState('normal')
+
+    const [isDark, setIsDark] = useState(false);
+    const [isEnabled_2, setIsEnabled_2] = useState(false);
     
     
+    const toggleSwitch = () => {calcType === 'normal'?setCalcType('scientific'):setCalcType('normal');setIsScientific(!isScientific);showScientific=false; setIsEnabled(previousState => !previousState)};
+    
+    const [dimensions, setDimensions] = useState({ window, screen });
+    
+    const [isRotated, setIsRotated] = useState(true);
+
+    useEffect(() => {
+        const subscription = Dimensions.addEventListener(
+        "change",
+        ({ window, screen }) => {
+            setDimensions({ window, screen });
+            setIsRotated(!isRotated)
+            setIsScientific(true)
+            setIsEnabled(true)
+            
+        }
+        );
+        return () => subscription?.remove();
+    });
+    
+    const Switcher = () =>{
+        
+        return(
+        
+            <View style={{width:60,height:57,left:40}}>
+                <Text style={{left:13}}>
+                    {calcType}
+                </Text>
+                <Switch
+                trackColor={{ false: "#767577", true: "#81b0ff" }}
+                thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={()=>toggleSwitch()}
+                value={isEnabled} />
+            </View>                
+        
+        )
+    }
+
+    const buttonCarretNavigare = (side) =>{
+        if(side>0 && caretPosition>=expr.length || (side >0 && expr.length === 1)){
+            return
+        }
+        else if(side<0 && caretPosition <=1 ){
+            return
+        }
+
+        setCaretPositon(caretPosition+side)
+    }
+
+    console.log(expr)
+
     return (
         !isLoading && <View style={styles.container}>
-
-                
-                
-                    
                       
+
+            <View style={{flexDirection: "row", flex:2,top:20,left:70,}}>
+                <TouchableOpacity style={{width:30,height:30,left:30,top:13,backgroundColor:'#FFE6E1', borderRadius:20, justifyContent:"center"}} onPress={()=>buttonCarretNavigare(-1)}>
+                    <Text>{"<---"}</Text>
+                </TouchableOpacity>
+                
+                {isRotated && <Switcher/>}
+
+                <TouchableOpacity style={{width:30,height:30,left:70,top:13,backgroundColor:'#FFE6E1', borderRadius:20, justifyContent:"center"}} onPress={()=>buttonCarretNavigare(+1)}>
+                    <Text>{"--->"}</Text>
+                </TouchableOpacity>
+
+            </View>
             
             {(tooltipEnabled || historyEnabled) && <ToolTipHistory />}
             <Display />            
-            <View style={{ position: "relative", flex: 4 }}>
-                {showScientific && <Scientific />}
-                <Actions />
+            <View style={{ position: "relative", flex: 7 }}>
+                {isScientific && <Scientific />}
+                <Actions/>
             </View>
         </View>
     );

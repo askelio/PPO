@@ -77,7 +77,7 @@ export const ThemeContextProvider = props => {
         if(init) return;
         init = true;
         let themeType = theme || colorScheme;
-        //console.log(themeType)
+        console.log(themeType)
         const _defaultColors = themeType === "ligth" ? lightThemeColors : darkThemeColors;
         let merged = {..._defaultColors, ...customize};
         setColors(merged);
@@ -110,7 +110,7 @@ export const ThemeContextProvider = props => {
         const _styles = {
             container: {
                 backgroundColor: bg,
-                marginTop:100,
+                
                 flex: 1
             },
             tooltipContainer: {
@@ -129,6 +129,18 @@ export const ThemeContextProvider = props => {
                 flexDirection: "row",                
                 flex: 1
             },
+            switchRow:{
+                display: "flex",                
+                flexDirection: "row",                
+                flex: 1,
+                borderWidth:1,
+                borderRadius:24,
+                width:130,
+                
+                alignItems:"center",
+                justifyContent:"center",
+                marginLeft:"33%",
+            },         
             button: btn,
             display: {
                 backgroundColor: displayBg,
