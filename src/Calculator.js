@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, TouchableOpacity, Vibration, Platform, TextInput, PixelRatio, Button } from "react-native";
+import { View, Text, TouchableOpacity, Vibration, Platform, TextInput, PixelRatio, Button, Modal } from "react-native";
 import { create, all, size, exp } from "mathjs";
 import { ThemeContext } from "./ThemeContext";
 import { Switch } from "react-native";
-import { Dimensions } from 'react-native';
+import { Dimensions, Alert, Pressable, StyleSheet, } from 'react-native';
 
 const Mathjs = create(all);
 
@@ -42,7 +42,7 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
         try {
             res = Mathjs.evaluate(expr.join(""));
         } catch (error) {
-            //console.log(error)
+            //console.log(error)            
         }
         if (isNaN(res)) {
             //console.log("error occured1")
@@ -72,7 +72,9 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
         Vibration.vibrate(20)
     }
 
-    
+    const isZeroDevision=(arg)=>{
+        
+    }
 
     const calculate = () => {
         Vibrate();
@@ -81,6 +83,8 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
             res = Mathjs.evaluate(expr.join(""));            
         } catch (error) {
             console.log(error)
+            setModalMessage(String(error))
+            setModalVisible(true)
             return
         }
         if (showLiveResult) {
@@ -92,8 +96,15 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
         }
         if (isNaN(res)) {
             console.log("error occured3")
+            setModalMessage(String("Uncertainty"))
+            setModalVisible(true)
         } else {
             console.log(res)
+            if(res===Infinity){
+                setExpr([res])
+                setCaretPositon(1)
+                return
+            }
             setExpr(Array.from(String(res),String));
             setCaretPositon(res.toString().length)
         }
@@ -103,9 +114,9 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
     const numPressed = (val, tip = "") => {
         setTooltip(tip);
         Vibrate();
-        if (equalled) {
-            setExpr([val]);
-        } else {
+        // if (equalled) {
+        //     setExpr([val]);
+        // } else {
             if (expr.join() === "0") {
                 setExpr([val]);
             } else {
@@ -114,7 +125,7 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
                 ret.splice(caretPosition, 0, val)
                 setExpr([...ret])
             }
-        }
+        // }
         setEqualled(false);
         //calculate();
 
@@ -147,9 +158,16 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
             } else {
                 let last = [...expr].pop();
                 if (isNaN(last)) {
-                    setExpr([...expr, val])
+                    setExpr([...expr, val])                    
                 } else {
-                    setExpr([...expr, "*", val])
+                    // setExpr([...expr, "*", val])
+                    // setCaretPositon(caretPosition+2)
+                    
+                    let ret = [...expr]
+                    ret.splice(caretPosition, 0, '*',val)
+                    setExpr([...ret])
+                    setCaretPositon(caretPosition+2)
+                    return
                 }
             }
         }
@@ -187,22 +205,38 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
 
     const dotHandler = () => {
         Vibrate();
-        if (equalled) {
-            setExpr([0, "."]);
-        } else {
-            let index = expr.lastIndexOf(".");
-            if (index > -1) {
-                let num = expr.slice(index).join("");
-                console.log(num)
-                if (isNaN(num)) {
-                    setExpr([...expr, "."]);
-                }
-            } else {
-                setExpr([...expr, "."]);
-            }
-            console.log(index)
-        }
+        // if (equalled) {
+        //     // setExpr([0, "."]);
+        //     let ret = [...expr]
+        //     ret.splice(caretPosition, 0, '.')
+        //     setExpr([...ret])
+        // } else {
+        //     let index = expr.lastIndexOf(".");
+        //     if (index > -1) {
+        //         let num = expr.slice(index).join("");
+        //         console.log(num)
+        //         if (isNaN(num)) {
+        //             // setExpr([...expr, "."]);
+        //             let ret = [...expr]
+        //             ret.splice(caretPosition, 0, '.')
+        //             setExpr([...ret])
+        //         }
+        //     } else {
+        //         // setExpr([...expr, "."]);
+        //         let ret = [...expr]
+        //         ret.splice(caretPosition, 0, '.')
+        //         setExpr([...ret])
+        //     }
+        //     console.log(index)
+        // }
+        let ret = [...expr]
+        ret.splice(caretPosition, 0, '.')
+        setExpr([...ret])
         setEqualled(false);
+        // if(caretPosition <= 1){
+        //     return
+        // }
+        setCaretPositon(caretPosition+1)
     }
 
     const ToolTipHistory = () => <View style={{ flex: .5, backgroundColor: "blue" }}>
@@ -484,17 +518,19 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
 
     const [isScientific,setIsScientific] = useState(false)
     const [isEnabled, setIsEnabled] = useState(false);
-    const [calcType, setCalcType] = useState('normal')
+    const [calcType, setCalcType] = useState('normal'); 
 
-    const [isDark, setIsDark] = useState(false);
-    const [isEnabled_2, setIsEnabled_2] = useState(false);
-    
-    
-    const toggleSwitch = () => {calcType === 'normal'?setCalcType('scientific'):setCalcType('normal');setIsScientific(!isScientific);showScientific=false; setIsEnabled(previousState => !previousState)};
-    
     const [dimensions, setDimensions] = useState({ window, screen });
     
     const [isRotated, setIsRotated] = useState(true);
+
+    const [modalVisible, setModalVisible] = useState(false);
+    
+    const [modalMessage, setModalMessage] = useState('');
+
+    const toggleSwitch = () => {calcType === 'normal'?setCalcType('scientific'):setCalcType('normal');setIsScientific(!isScientific);showScientific=false; setIsEnabled(previousState => !previousState)};
+    
+    
 
     useEffect(() => {
         const subscription = Dimensions.addEventListener(
@@ -539,12 +575,42 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
 
         setCaretPositon(caretPosition+side)
     }
+    
 
     console.log(expr)
 
     return (
         !isLoading && <View style={styles.container}>
-                      
+
+            <View>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => {
+                    Alert.alert("Modal has been closed.");
+                    setModalVisible(!modalVisible);
+                    }}
+                >
+                    <View style={modalStyles.centeredView}>
+                    <View style={modalStyles.modalView}>
+                        <Text style={modalStyles.modalText}>{modalMessage}</Text>
+                        <Pressable
+                        style={[modalStyles.button, modalStyles.buttonClose]}
+                        onPress={() => setModalVisible(!modalVisible)}
+                        >
+                        <Text style={modalStyles.textStyle}>Hide</Text>
+                        </Pressable>
+                    </View>
+                    </View>
+                </Modal>
+                {/* <Pressable
+                    style={[styles.button, styles.buttonOpen]}
+                    onPress={() => setModalVisible(true)}
+                >
+                    <Text style={styles.textStyle}>Show Modal</Text>
+                </Pressable> */}
+            </View>               
 
             <View style={{flexDirection: "row", flex:2,top:20,left:70,}}>
                 <TouchableOpacity style={{width:30,height:30,left:30,top:13,backgroundColor:'#FFE6E1', borderRadius:20, justifyContent:"center"}} onPress={()=>buttonCarretNavigare(-1)}>
@@ -568,5 +634,50 @@ const Calculators = ({ showLiveResult, scientific: showScientific, customize, th
         </View>
     );
 }
+
+const modalStyles = StyleSheet.create({
+    //   centeredView: {
+    //     flex: 1,
+    //     justifyContent: "center",
+    //     alignItems: "center",
+    //     marginTop: 22
+    //   },
+      modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+      },
+      button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2
+      },
+      buttonOpen: {
+        backgroundColor: "#F194FF",
+      },
+      buttonClose: {
+        backgroundColor: "#2196F3",
+      },
+      textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+      },
+      modalText: {
+        marginBottom: 15,
+        textAlign: "center"
+      }
+    });
+
 
 export default React.memo(Calculators);

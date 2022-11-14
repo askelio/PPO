@@ -2,6 +2,7 @@ import React, { useState, createContext, useEffect } from "react";
 import { Appearance } from 'react-native';
 
 
+
 export const ThemeContext = createContext();
 
 export const ThemeContextProvider = props => {
@@ -9,6 +10,9 @@ export const ThemeContextProvider = props => {
     const [styles, setStyles] = useState({});
     const [colors, setColors] = useState({});
     const [isLoading, setLoading] = useState(true);
+
+
+    const [modalVisible, setModalVisible] = useState(false);
 
     const lightThemeColors = {
         bg: '#ffffff',
